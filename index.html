@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aathi Elanchezhiyan — Cinematographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0a;
+    --bg-alt:#141311;
+    --grain-line:#201e1a;
+    --ink:#ece7dc;
+    --muted:#8f887a;
+    --accent:#b08a52;
+    --accent-dim:#5c4b2c;
+    --hairline:rgba(236,231,220,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:#0b0b0a; }
+
+  .grain{
+    position:fixed; inset:0; z-index:999; pointer-events:none;
+    opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- TIMECODE TICKER ---------- */
+  .tc-bar{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    height:34px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 22px; font-family:'JetBrains Mono', monospace; font-size:11px;
+    letter-spacing:0.08em; color:var(--muted);
+    background:rgba(11,11,10,0.75); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .tc-bar .tc-code{ color:var(--accent); }
+  .tc-bar .tc-scrub{
+    flex:1; height:1px; background:var(--hairline); margin:0 18px; position:relative;
+  }
+  .tc-bar .tc-scrub::after{
+    content:''; position:absolute; top:-2px; left:0; width:5px; height:5px;
+    background:var(--accent); border-radius:50%;
+    transform:translateX(var(--scrub, 0%));
+  }
+  .tc-bar .tc-name{ color:var(--muted); }
+
+  section{ position:relative; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 6vw; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.22em;
+    text-transform:uppercase; color:var(--accent); display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:''; width:22px; height:1px; background:var(--accent); display:inline-block; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    height:100svh; min-height:560px; display:flex; align-items:flex-end;
+    overflow:hidden; isolation:isolate;
+  }
+  .hero video, .hero img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    z-index:-2; filter:grayscale(35%) contrast(1.08) brightness(0.68);
+  }
+  .hero::before{
+    content:''; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(180deg, rgba(11,11,10,0.35) 0%, rgba(11,11,10,0.15) 35%, rgba(11,11,10,0.92) 92%);
+  }
+  .hero-inner{ padding-bottom:7vh; width:100%; }
+  .hero-role{
+    font-family:'JetBrains Mono', monospace; font-size:clamp(10px,1.1vw,13px);
+    letter-spacing:0.28em; text-transform:uppercase; color:var(--accent); margin-bottom:18px;
+  }
+  .hero h1{
+    font-family:'Anton', sans-serif; text-transform:uppercase; font-weight:400;
+    font-size:clamp(2.6rem, 9.5vw, 8.2rem); line-height:0.86; letter-spacing:0.01em;
+    color:var(--ink);
+  }
+  .hero-sub{
+    margin-top:22px; max-width:520px; font-size:clamp(1rem,1.6vw,1.25rem);
+    color:var(--muted); font-style:italic; font-weight:400;
+  }
+  .scroll-cue{
+    position:absolute; right:6vw; bottom:6vh; writing-mode:vertical-rl;
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.2em;
+    color:var(--muted); display:flex; align-items:center; gap:10px; text-transform:uppercase;
+  }
+  .scroll-cue::after{ content:''; width:1px; height:40px; background:var(--muted); display:block; animation:pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{opacity:.25} 50%{opacity:1} }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .sec-head{ padding:14vh 0 6vh; }
+  .sec-head h2{
+    font-family:'Anton', sans-serif; text-transform:uppercase; font-weight:400;
+    font-size:clamp(2.1rem,5vw,4.2rem); line-height:0.95; margin-top:14px; color:var(--ink);
+  }
+
+  /* ---------- ABOUT ---------- */
+  .about{ padding-bottom:14vh; border-bottom:1px solid var(--hairline); }
+  .about-grid{
+    display:grid; grid-template-columns:0.85fr 1.15fr; gap:7vw; align-items:end;
+  }
+  .about-photo{
+    position:relative; aspect-ratio:4/5; overflow:hidden; background:var(--bg-alt);
+  }
+  .about-photo img{
+    width:100%; height:100%; object-fit:cover; filter:grayscale(100%) contrast(1.1);
+  }
+  .about-photo::after{
+    content:''; position:absolute; inset:0; border:1px solid var(--hairline);
+  }
+  .about-text p{
+    font-size:clamp(1.15rem,2vw,1.55rem); line-height:1.5; color:var(--ink); font-weight:400;
+  }
+  .about-text p + p{ margin-top:1.4em; color:var(--muted); }
+  .about-meta{
+    margin-top:3.2em; display:flex; gap:3em; flex-wrap:wrap;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.08em; color:var(--muted);
+  }
+  .about-meta span{ display:block; color:var(--accent); font-size:10px; margin-bottom:6px; letter-spacing:0.18em; }
+
+  /* ---------- REELS ---------- */
+  .reels{ padding-bottom:8vh; }
+  .reel-lead{
+    position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; margin-bottom:10vh;
+    background:var(--bg-alt);
+  }
+  .reel-lead video{ width:100%; height:100%; object-fit:cover; filter:grayscale(20%) contrast(1.05); display:block; }
+  .reel-lead .reel-tag{
+    position:absolute; left:24px; bottom:22px; z-index:2;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; color:var(--ink);
+    background:rgba(11,11,10,0.55); padding:8px 14px; backdrop-filter:blur(4px);
+    border-left:2px solid var(--accent);
+  }
+  .reel-lead .reel-tag b{ color:var(--accent); font-weight:500; }
+
+  .reel-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:1.6vw;
+  }
+  .reel-card{
+    position:relative; aspect-ratio:9/16; overflow:hidden; background:var(--bg-alt);
+    border:1px solid var(--hairline); cursor:pointer;
+  }
+  .reel-card video{
+    width:100%; height:100%; object-fit:cover; filter:grayscale(30%) contrast(1.08) brightness(0.85);
+    transition:filter .5s ease, transform .8s ease;
+  }
+  .reel-card:hover video{ filter:grayscale(0%) contrast(1.05) brightness(1); transform:scale(1.03); }
+  .reel-card .tag{
+    position:absolute; top:12px; left:12px; font-family:'JetBrains Mono', monospace;
+    font-size:10px; letter-spacing:0.1em; color:var(--ink); background:rgba(11,11,10,0.55);
+    padding:4px 8px;
+  }
+  .reel-card .tag b{ color:var(--accent); }
+  .reel-card .play{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity .3s ease;
+  }
+  .reel-card:hover .play{ opacity:1; }
+  .play svg{ width:34px; height:34px; }
+
+  /* ---------- GALLERY ---------- */
+  .gallery{ padding-bottom:14vh; border-top:1px solid var(--hairline); }
+  .gallery-grid{
+    margin-top:6vh; column-count:3; column-gap:1.4vw;
+  }
+  .gallery-grid figure{
+    break-inside:avoid; margin-bottom:1.4vw; overflow:hidden; position:relative;
+  }
+  .gallery-grid img{
+    width:100%; display:block; filter:grayscale(100%) contrast(1.08);
+    transition:transform .7s ease, filter .5s ease;
+  }
+  .gallery-grid figure:hover img{ transform:scale(1.045); filter:grayscale(0%) contrast(1.02); }
+  .gallery-grid figcaption{
+    position:absolute; left:10px; bottom:10px; font-family:'JetBrains Mono', monospace;
+    font-size:10px; letter-spacing:0.1em; color:var(--ink);
+    opacity:0; transition:opacity .3s ease; background:rgba(11,11,10,0.55); padding:3px 8px;
+  }
+  .gallery-grid figure:hover figcaption{ opacity:1; }
+
+  /* ---------- CONTACT ---------- */
+  .contact{
+    padding:16vh 0 6vh; border-top:1px solid var(--hairline);
+  }
+  .contact h2{
+    font-family:'Anton', sans-serif; text-transform:uppercase; font-weight:400;
+    font-size:clamp(2.4rem,7vw,6rem); line-height:0.92; color:var(--ink);
+  }
+  .contact-links{
+    margin-top:6vh; display:grid; grid-template-columns:repeat(3,1fr); gap:2vw;
+  }
+  .contact-links a{
+    display:block; padding:22px 0; border-top:1px solid var(--hairline);
+    color:var(--ink); text-decoration:none; font-family:'JetBrains Mono', monospace;
+    font-size:13px; letter-spacing:0.05em; transition:color .3s ease;
+  }
+  .contact-links a span{ display:block; color:var(--accent); font-size:10px; letter-spacing:0.18em; margin-bottom:10px; }
+  .contact-links a:hover{ color:var(--accent); }
+  footer{
+    margin-top:10vh; padding:3vh 0 4vh; display:flex; justify-content:space-between;
+    align-items:center; border-top:1px solid var(--hairline);
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; color:var(--muted);
+    flex-wrap:wrap; gap:10px;
+  }
+
+  @media (max-width:820px){
+    .about-grid{ grid-template-columns:1fr; gap:6vh; }
+    .about-photo{ max-width:280px; }
+    .reel-grid{ grid-template-columns:repeat(2, 1fr); }
+    .gallery-grid{ column-count:2; }
+    .contact-links{ grid-template-columns:1fr; }
+    .tc-bar .tc-name{ display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .scroll-cue::after{ animation:none; }
+    .reel-card video, .gallery-grid img{ transition:none; }
+  }
+
+  a:focus-visible, .reel-card:focus-visible{
+    outline:1px solid var(--accent); outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<div class="tc-bar">
+  <span class="tc-name">AATHI ELANCHEZHIYAN</span>
+  <span class="tc-scrub" id="scrub"></span>
+  <span class="tc-code" id="tcCode">00:00:00:00</span>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <video autoplay muted loop playsinline poster="assets/img/hero-poster.jpg">
+    <source src="assets/videos/reel-main.mp4" type="video/mp4">
+  </video>
+  <div class="wrap hero-inner">
+    <div class="hero-role">Cinematographer — Filmmaker — Visual Storyteller</div>
+    <h1>Aathi<br>Elanchezhiyan</h1>
+    <p class="hero-sub">Frame by frame, finding the cinema hiding in ordinary light.</p>
+  </div>
+  <div class="scroll-cue">Scroll</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Behind the Lens</div>
+      <h2>About</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-photo">
+        <img src="assets/img/profile.jpg" alt="Aathi Elanchezhiyan behind the camera">
+      </div>
+      <div class="about-text">
+        <p>Aathi Elanchezhiyan is an aspiring visual storyteller, cinematographer, and filmmaker drawn to the quiet, unscripted moments most people scroll past — light breaking through monsoon clouds, a stray cat pausing at a puddle, a dead tree holding its shape against the sky.</p>
+        <p>Working across short films, observational footage, and still photography, Aathi treats the camera as a way of paying attention — building a visual language out of patience, contrast, and the textures of everyday India.</p>
+        <div class="about-meta">
+          <div><span>Based In</span>India</div>
+          <div><span>Focus</span>Cinematography / Short Film</div>
+          <div><span>Status</span>Open to Collaborations</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SELECTED REELS -->
+<section class="reels" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Selected Work</div>
+      <h2>Reels &amp; Footage</h2>
+    </div>
+
+    <div class="reel-lead">
+      <video muted loop playsinline preload="metadata" id="leadVideo">
+        <source src="assets/videos/reel-main.mp4" type="video/mp4">
+      </video>
+      <div class="reel-tag"><b>REEL 00</b> — Main Showreel · 00:60</div>
+    </div>
+
+    <div class="reel-grid">
+      <div class="reel-card" data-src="assets/videos/reel-01.mp4">
+        <video muted loop playsinline preload="metadata"><source src="assets/videos/reel-01.mp4" type="video/mp4"></video>
+        <div class="tag"><b>01</b> · 00:07</div>
+        <div class="play">▶</div>
+      </div>
+      <div class="reel-card" data-src="assets/videos/reel-02.mp4">
+        <video muted loop playsinline preload="metadata"><source src="assets/videos/reel-02.mp4" type="video/mp4"></video>
+        <div class="tag"><b>02</b> · 00:17</div>
+        <div class="play">▶</div>
+      </div>
+      <div class="reel-card" data-src="assets/videos/reel-03.mp4">
+        <video muted loop playsinline preload="metadata"><source src="assets/videos/reel-03.mp4" type="video/mp4"></video>
+        <div class="tag"><b>03</b> · 00:13</div>
+        <div class="play">▶</div>
+      </div>
+      <div class="reel-card" data-src="assets/videos/reel-04.mp4">
+        <video muted loop playsinline preload="metadata"><source src="assets/videos/reel-04.mp4" type="video/mp4"></video>
+        <div class="tag"><b>04</b> · 00:15</div>
+        <div class="play">▶</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="gallery" id="stills">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Frame Studies</div>
+      <h2>Stills</h2>
+    </div>
+    <div class="gallery-grid">
+      <figure><img src="assets/images/still-01.jpg" alt="Cloud light study"><figcaption>Sky / 01</figcaption></figure>
+      <figure><img src="assets/images/still-02.jpg" alt="Birds in flight"><figcaption>Flight / 02</figcaption></figure>
+      <figure><img src="assets/images/still-03.jpg" alt="Temple silhouette"><figcaption>Silhouette / 03</figcaption></figure>
+      <figure><img src="assets/images/still-04.jpg" alt="Cat drinking from puddle"><figcaption>Reflection / 04</figcaption></figure>
+      <figure><img src="assets/images/still-05.jpg" alt="Snail macro"><figcaption>Macro / 05</figcaption></figure>
+      <figure><img src="assets/images/still-06.jpg" alt="Dead tree against sky"><figcaption>Form / 06</figcaption></figure>
+      <figure><img src="assets/images/still-07.jpg" alt="Tree canopy"><figcaption>Canopy / 07</figcaption></figure>
+      <figure><img src="assets/images/still-08.jpg" alt="River stump"><figcaption>Water / 08</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="eyebrow">Let's Make Something</div>
+    <h2>Get in<br>Touch</h2>
+    <div class="contact-links">
+      <a href="tel:+917708300598"><span>Phone</span>+91 77083 00598</a>
+      <a href="mailto:aathielanchezhiyan@gmail.com"><span>Email</span>aathielanchezhiyan@gmail.com</a>
+      <a href="https://www.instagram.com/azficel_" target="_blank" rel="noopener"><span>Instagram</span>@azficel_</a>
+    </div>
+    <footer>
+      <span>© 2026 Aathi Elanchezhiyan</span>
+      <span>Cinematography · Filmmaking · Visual Storytelling</span>
+    </footer>
+  </div>
+</section>
+
+<script>
+  // Timecode ticker driven by scroll position
+  const tcCode = document.getElementById('tcCode');
+  const scrub = document.getElementById('scrub');
+  function fmt(n){ return String(n).padStart(2,'0'); }
+  function update(){
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const pct = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    const totalFrames = Math.floor(pct * 24 * 999);
+    const ff = totalFrames % 24;
+    const ss = Math.floor(totalFrames / 24) % 60;
+    const mm = Math.floor(totalFrames / (24*60)) % 60;
+    const hh = Math.floor(totalFrames / (24*60*60));
+    tcCode.textContent = `${fmt(hh)}:${fmt(mm)}:${fmt(ss)}:${fmt(ff)}`;
+    scrub.style.setProperty('--scrub', (pct*100) + '%');
+  }
+  document.addEventListener('scroll', update, { passive:true });
+  update();
+
+  // Autoplay hover-preview cards on desktop, click-to-play on touch
+  document.querySelectorAll('.reel-card').forEach(card => {
+    const vid = card.querySelector('video');
+    card.addEventListener('mouseenter', () => vid.play().catch(()=>{}));
+    card.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+    card.addEventListener('click', () => {
+      if (vid.paused){ vid.play().catch(()=>{}); } else { vid.pause(); }
+    });
+  });
+
+  const lead = document.getElementById('leadVideo');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ lead.play().catch(()=>{}); } else { lead.pause(); }
+    });
+  }, { threshold:0.3 });
+  io.observe(lead);
+</script>
+
+</body>
+</html>
